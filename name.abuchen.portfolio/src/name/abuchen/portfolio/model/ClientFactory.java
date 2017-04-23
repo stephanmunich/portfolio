@@ -496,6 +496,8 @@ public class ClientFactory
                 // added AED currency
             case 33:
                 // added FEES_REFUND transaction type
+            case 34:
+                // added online uuid
 
                 client.setVersion(Client.CURRENT_VERSION);
                 break;

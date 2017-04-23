@@ -40,6 +40,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -63,6 +64,7 @@ import name.abuchen.portfolio.snapshot.ReportingPeriod;
 import name.abuchen.portfolio.ui.dialogs.PasswordDialog;
 import name.abuchen.portfolio.ui.views.ExceptionView;
 import name.abuchen.portfolio.ui.wizards.client.ClientMigrationDialog;
+import name.abuchen.portfolio.ui.wizards.sync.SyncMasterDataWizard;
 
 @SuppressWarnings("restriction")
 public class PortfolioPart implements LoadClientThread.Callback
@@ -306,6 +308,14 @@ public class PortfolioPart implements LoadClientThread.Callback
         {
             Display.getDefault().asyncExec(() -> {
                 Dialog dialog = new ClientMigrationDialog(Display.getDefault().getActiveShell(), client);
+                dialog.open();
+            });
+        }
+        else if (client.getFileVersionAfterRead() < Client.VERSION_WITH_ONLINEID_SUPPORT)
+        {
+            Display.getDefault().asyncExec(() -> {
+                Dialog dialog = new WizardDialog(Display.getDefault().getActiveShell(),
+                                new SyncMasterDataWizard(client, getPreferenceStore()));
                 dialog.open();
             });
         }

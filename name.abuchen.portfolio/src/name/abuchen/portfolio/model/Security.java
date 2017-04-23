@@ -28,6 +28,7 @@ public final class Security implements Attributable, InvestmentVehicle
     }
 
     private String uuid;
+    private String onlineId;
 
     private String name;
     private String currencyCode = CurrencyUnit.EUR;
@@ -103,6 +104,16 @@ public final class Security implements Attributable, InvestmentVehicle
     {
         if (uuid == null)
             generateUUID();
+    }
+
+    public String getOnlineId()
+    {
+        return onlineId;
+    }
+
+    public void setOnlineId(String onlineId)
+    {
+        this.onlineId = onlineId;
     }
 
     @Override
@@ -470,6 +481,8 @@ public final class Security implements Attributable, InvestmentVehicle
     public Security deepCopy()
     {
         Security answer = new Security();
+
+        answer.onlineId = onlineId;
 
         answer.name = name;
         answer.currencyCode = currencyCode;
