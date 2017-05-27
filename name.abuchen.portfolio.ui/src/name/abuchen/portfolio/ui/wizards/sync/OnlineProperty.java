@@ -1,35 +1,21 @@
 package name.abuchen.portfolio.ui.wizards.sync;
 
-import name.abuchen.portfolio.ui.Messages;
+import name.abuchen.portfolio.model.OnlineState;
+import name.abuchen.portfolio.model.OnlineState.State;
 
 public class OnlineProperty
 {
-    public enum Property
-    {
-        ID("Online Id"), NAME(Messages.ColumnName), ISIN(Messages.ColumnISIN), WKN(Messages.ColumnWKN), TICKER(
-                        Messages.ColumnTicker);
-
-        private String label;
-
-        private Property(String label)
-        {
-            this.label = label;
-        }
-
-        public String getLabel()
-        {
-            return label;
-        }
-    }
-
     private String originalValue;
+    private OnlineState.State originalState;
+
     private String suggestedValue;
 
     private boolean isModified;
 
-    public OnlineProperty(String originalValue)
+    public OnlineProperty(String originalValue, OnlineState.State originalState)
     {
         this.originalValue = originalValue;
+        this.originalState = originalState;
     }
 
     public String getOriginalValue()
@@ -46,8 +32,30 @@ public class OnlineProperty
     {
         this.suggestedValue = suggestedValue;
 
-        if (suggestedValue != null && !suggestedValue.equals(originalValue))
+        // no online value found --> keep existing value
+        if (suggestedValue == null || suggestedValue.isEmpty())
+            isModified = false;
+
+        // online value is identical --> nothing to do
+        else if (suggestedValue.equals(originalValue))
+            isModified = false; // NOSONAR
+
+        // accept new value if no sync decision was made
+        else if (originalState == OnlineState.State.BLANK)
             isModified = true;
+    }
+
+    public State getSuggestedState()
+    {
+        if (!isModified())
+        {
+            return suggestedValue != null && suggestedValue.equals(originalValue) ? OnlineState.State.SYNCED
+                            : OnlineState.State.CUSTOM;
+        }
+        else
+        {
+            return OnlineState.State.SYNCED;
+        }
     }
 
     public String getValue()
@@ -64,4 +72,5 @@ public class OnlineProperty
     {
         this.isModified = isModified;
     }
+
 }

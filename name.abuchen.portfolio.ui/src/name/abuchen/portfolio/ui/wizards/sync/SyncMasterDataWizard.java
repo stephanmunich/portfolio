@@ -13,6 +13,8 @@ public class SyncMasterDataWizard extends Wizard
     private final Client client;
     private final IPreferenceStore preferences;
 
+    private SyncMasterDataPage syncPage;
+
     public SyncMasterDataWizard(Client client, IPreferenceStore preferences)
     {
         this.client = client;
@@ -31,7 +33,7 @@ public class SyncMasterDataWizard extends Wizard
     public void addPages()
     {
         addPage(new InfoSyncPage());
-        addPage(new SyncMasterDataPage(client, preferences));
+        addPage(syncPage = new SyncMasterDataPage(client, preferences));
 
         AbstractWizardPage.attachPageListenerTo(getContainer());
     }
@@ -39,6 +41,11 @@ public class SyncMasterDataWizard extends Wizard
     @Override
     public boolean performFinish()
     {
+        syncPage.getSecurities().forEach(s -> {
+            if (s.apply())
+                client.markDirty();
+        });
+
         return true;
     }
 

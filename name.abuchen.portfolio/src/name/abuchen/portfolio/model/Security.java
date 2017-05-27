@@ -29,6 +29,7 @@ public final class Security implements Attributable, InvestmentVehicle
 
     private String uuid;
     private String onlineId;
+    private OnlineState onlineState;
 
     private String name;
     private String currencyCode = CurrencyUnit.EUR;
@@ -114,6 +115,14 @@ public final class Security implements Attributable, InvestmentVehicle
     public void setOnlineId(String onlineId)
     {
         this.onlineId = onlineId;
+    }
+
+    public OnlineState getOnlineState()
+    {
+        if (onlineState == null)
+            onlineState = new OnlineState();
+
+        return onlineState;
     }
 
     @Override
