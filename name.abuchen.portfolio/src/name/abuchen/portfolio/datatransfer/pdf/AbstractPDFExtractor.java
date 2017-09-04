@@ -1,6 +1,9 @@
 package name.abuchen.portfolio.datatransfer.pdf;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -59,7 +62,7 @@ import name.abuchen.portfolio.money.Values;
     @Override
     public String getFilterExtension()
     {
-        return "*.pdf"; //$NON-NLS-1$
+        return "*.pdf;*.txt"; //$NON-NLS-1$
     }
 
     @Override
@@ -71,29 +74,46 @@ import name.abuchen.portfolio.money.Values;
         List<Item> results = new ArrayList<>();
         for (File f : files)
         {
-            try
-            {
-                String text = strip(f);
-                results.addAll(extract(f.getName(), text, errors));
-            }
-            catch (IOException e)
-            {
-                errors.add(new IOException(f.getName() + ": " + e.getMessage(), e)); //$NON-NLS-1$
-            }
+                try
+                {
+                    String text = strip(f);
+                    results.addAll(extract(f.getName(), text, errors));
+                }
+                catch (IOException e) {
+                    errors.add(new IOException(f.getName() + ": " + e.getMessage(), e)); //$NON-NLS-1$
+                }
         }
-
         results.addAll(securityCache.createMissingSecurityItems(results));
-
         securityCache = null;
-
         return results;
     }
 
     /* testing */ protected String strip(File file) throws IOException
     {
-        try (PDDocument doc = PDDocument.load(file))
+        String[] fParts = file.getName().split("\\.");
+
+        if ((fParts.length > 0) && (fParts[fParts.length-1].equalsIgnoreCase("pdf")))
         {
-            return textStripper.getText(doc);
+            // try to read the file in as PDF document
+            try (PDDocument doc = PDDocument.load(file)) {
+                return textStripper.getText(doc);
+            } catch (IOException e) {   
+                return "";
+            }
+        } else {
+            // try to read the file in as text document
+            try (FileReader reader = new FileReader(file)) {
+                BufferedReader bufferedReader = new BufferedReader(reader);
+                String line;
+                String text = "";
+                
+                while ((line = bufferedReader.readLine()) != null) {
+                    text = text + line + System.lineSeparator();
+                }
+                return text;
+            } catch (IOException e) {
+                return "";
+            }
         }
     }
 
